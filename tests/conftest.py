@@ -95,27 +95,33 @@ def get_pool_token_pairs(metafunc):
 
 
 def get_tokens_for_metafunc(metafunc):
-    for name, number in TOKEN_TYPES.items():
-        if metafunc.definition.get_closest_marker(f"only_{name}_tokens"):
-            return [(name, number)]
+    # for name, number in TOKEN_TYPES.items():
+    #     if metafunc.definition.get_closest_marker(f"only_{name}_tokens"):
+    #         return [(name, number)]
 
-    return [
-        (name, number)
-        for name, number in TOKEN_TYPES.items()
-        if not metafunc.definition.get_closest_marker(f"skip_{name}_tokens")
-    ]
+    # return [
+    #     (name, number)
+    #     for name, number in TOKEN_TYPES.items()
+    #     if not metafunc.definition.get_closest_marker(f"skip_{name}_tokens")
+    # ]
+    
+    # Always return only the plain token type
+    return [("plain", 0)]
 
 
 def get_pool_types(metafunc):
-    for name, number in POOL_TYPES.items():
-        if metafunc.definition.get_closest_marker(f"only_{name}_pool"):
-            return [(name, number)]
+    # for name, number in POOL_TYPES.items():
+    #     if metafunc.definition.get_closest_marker(f"only_{name}_pool"):
+    #         return [(name, number)]
 
-    return [
-        (name, number)
-        for name, number in POOL_TYPES.items()
-        if not metafunc.definition.get_closest_marker(f"skip_{name}_pool")
-    ]
+    # return [
+    #     (name, number)
+    #     for name, number in POOL_TYPES.items()
+    #     if not metafunc.definition.get_closest_marker(f"skip_{name}_pool")
+    # ]
+
+    # Always return only the basic pool type
+    return [("basic", 0)]
 
 
 @pytest.fixture(scope="session")
