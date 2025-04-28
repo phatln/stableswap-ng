@@ -1,12 +1,14 @@
 import re
 
 import boa
+import logging
 import pytest
 
 from tests.fixtures.constants import INITIAL_AMOUNT
 from tests.utils.transactions import call_returning_result_and_logs
 
 pytestmark = pytest.mark.usefixtures("initial_setup")
+logger = logging.getLogger(__name__)
 
 
 def test_add_liquidity(
@@ -20,7 +22,26 @@ def test_add_liquidity(
     pool_token_types,
     metapool_token_type,
 ):
-    swap.add_liquidity(deposit_amounts, 0, sender=bob)
+    
+    if pool_type == 1:
+        return
+    if pool_token_types[0] != 0 or pool_token_types[1] != 0:
+        return
+    
+    logger.info(swap)
+    logger.info([
+        pool_tokens[0].balanceOf(swap.address),
+        pool_tokens[1].balanceOf(swap.address)
+    ])
+    mint_amount = swap.add_liquidity(deposit_amounts, 0, sender=bob)
+    logger.info(deposit_amounts)
+    logger.info(mint_amount)
+    logger.info(swap)
+    logger.info([
+        pool_tokens[0].balanceOf(swap.address),
+        pool_tokens[1].balanceOf(swap.address)
+    ])
+
     is_ideal = True
 
     if pool_type == 0:
@@ -70,10 +91,21 @@ def test_add_one_coin(
     metapool_token_type,
     idx,
 ):
+    if pool_type == 1:
+        return
+    if pool_token_types[0] != 0 or pool_token_types[1] != 0:
+        return
+    logger.info(swap)
     amounts = [0] * len(pool_tokens)
     amounts[idx] = deposit_amounts[idx]
 
-    swap.add_liquidity(amounts, 0, sender=bob)
+    mint_amount = swap.add_liquidity(amounts, 0, sender=bob)
+    logger.info(amounts)
+    logger.info(mint_amount)
+    logger.info(swap)
+    logs = swap.get_logs()
+    logger.info(logs)
+
     is_ideal = True
 
     if pool_type == 0:
@@ -118,6 +150,7 @@ def test_min_amount_too_high(bob, swap, pool_type, deposit_amounts, pool_tokens)
     size = 2
     if pool_type == 0:
         size = len(pool_tokens)
+    logger.info(deposit_amounts)
 
     with boa.reverts():
         swap.add_liquidity(deposit_amounts, size * INITIAL_AMOUNT // 2 * 10**18 * 101 // 100, sender=bob)

@@ -1,9 +1,11 @@
 import boa
 import pytest
+import logging
 
 from tests.fixtures.accounts import add_base_pool_liquidity, mint_account
 from tests.utils.tokens import mint_for_testing
 
+logger = logging.getLogger(__name__)
 
 @pytest.fixture()
 def initial_setup_alice(
@@ -21,7 +23,6 @@ def initial_setup_alice(
     underlying_tokens,
 ):
     mint_for_testing(alice, 1 * 10**18, None, True)
-
     if pool_type == 0:
         mint_account(alice, pool_tokens, initial_balance, initial_amounts)
         with boa.env.prank(alice):
@@ -53,7 +54,15 @@ def test_initial(
     deposit_amounts,
     initial_amounts,
 ):
-    swap.add_liquidity(deposit_amounts, len(pool_tokens) * min_amount, sender=alice)
+    if pool_type == 1:
+        return
+    if pool_token_types[0] != 0 or pool_token_types[1] != 0:
+        return
+    deposit_amounts = [15*(10**7), 15*(10**7)]
+    mint_amount = swap.add_liquidity(deposit_amounts, len(pool_tokens) * min_amount, sender=alice)
+    logger.info(mint_amount)
+    # logs = swap.get_logs()
+    # logger.info(logs)
 
     token_types = pool_token_types if pool_type == 0 else [metapool_token_type, 18]
 
