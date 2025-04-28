@@ -564,6 +564,13 @@ def exchange_received(
         True,  # <--------------------------------------- swap optimistically.
     )
 
+event MyDebug:
+    old_balances: DynArray[uint256, MAX_COINS]
+    rates: DynArray[uint256, MAX_COINS]
+    d0: uint256
+    new_balances: DynArray[uint256, MAX_COINS]
+    amp: uint256
+    D1: uint256
 
 @external
 @nonreentrant('lock')
@@ -612,6 +619,7 @@ def add_liquidity(
 
     # Invariant after change
     D1: uint256 = self.get_D_mem(rates, new_balances, amp)
+    log MyDebug(old_balances, rates, D0, new_balances, amp, D1)
     assert D1 > D0
 
     # We need to recalculate the invariant accounting for fees
