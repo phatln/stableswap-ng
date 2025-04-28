@@ -6,6 +6,7 @@ from tests.constants import POOL_TYPES
 
 ORACLE_METHOD_ID = function_signature_to_4byte_selector("exchangeRate()")
 OFFPEG_FEE_MULTIPLIER = 20000000000
+logger = logging.getLogger(__name__)
 
 
 @pytest.fixture()
@@ -48,6 +49,16 @@ def basic_swap(deployer, factory, pool_size, pool_tokens, zero_address, amm_depl
             method_ids,
             oracles,
         )
+
+        # logger.info(coins)
+        # logger.info(A)
+        # logger.info(fee)
+        # logger.info(OFFPEG_FEE_MULTIPLIER)
+        # logger.info(ma_exp_time)
+        # logger.info(asset_types)
+        # logger.info(oracles)
+        # logger.info(amm_deployer.at(pool))
+
     return amm_deployer.at(pool)
 
 
