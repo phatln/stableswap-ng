@@ -1,6 +1,8 @@
 import pytest
+import logging
 
 pytestmark = pytest.mark.usefixtures("initial_setup")
+logger = logging.getLogger(__name__)
 
 
 @pytest.mark.all_token_pairs
@@ -18,6 +20,11 @@ def test_min_dy(
     receiving,
     decimals,
 ):
+    if pool_type == 1:
+        pass
+    if pool_token_types[0] != 0 or pool_token_types[1] != 0:
+        pass
+
     # debug stops for investigations
     if pool_token_types[receiving] == 2:
         pass
@@ -37,9 +44,15 @@ def test_min_dy(
     pool_balance_token_in = swap.balances(sending)
     # swap.exchange(sending, receiving, amount, min_dy - 1, sender=bob)
     # no slippage here, we test min_dy extensively later on
+    logger.info(swap)
+    logger.info(sending)
+    logger.info(receiving);
+    logger.info(amount); 
+    logger.info(min_dy)
     swap.exchange(sending, receiving, amount, 0, sender=bob)
     if pool_type == 0:
         final_receiving = pool_tokens[receiving].balanceOf(bob)
+        logger.info(final_receiving)
     else:
         final_receiving = underlying_tokens[receiving].balanceOf(bob)
 
@@ -102,6 +115,11 @@ def test_min_dy_imbalanced(
     receiving,
     decimals,
 ):
+    if pool_type == 1:
+        pass
+    if pool_token_types[0] != 0 or pool_token_types[1] != 0:
+        pass
+
     # @note - this test has lots of edge-cases, we need to consider rebase effects, oracle rates, etc.
     # however, we assume that pool imbalance is so high, that it will always dominate these effects
     # for this reason we do not consider them all in this test, as in 'balanced' test above
@@ -113,15 +131,20 @@ def test_min_dy_imbalanced(
     amounts_add = [0, 0]
     amounts_add[sending] = 0
     amounts_add[receiving] = amount
+    logger.info(amounts_add)
     swap.add_liquidity(amounts_add, 0, sender=bob)
+    logger.info(swap)
 
     # pool state is unbalanced - it has some token_in (sending) from initializations and a lot of token_out (receiving)
     assert swap.balances(receiving) > swap.balances(sending)
 
     # min_dy_sending - send scarcer asset, receive more abundant asset
     min_dy_sending = swap.get_dy(sending, receiving, amount)
+    logger.info(min_dy_sending)
+
     # min_dy_receiving - send more abundant asset receive scarcer asset,
     min_dy_receiving = swap.get_dy(receiving, sending, amount)
+    logger.info(min_dy_receiving)
 
     # oracle treatment (so that test works even for large-deviation oracle tokens)
     rate = 1

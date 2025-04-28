@@ -1,3 +1,4 @@
+import logging
 import boa
 import pytest
 from eth_utils import function_signature_to_4byte_selector

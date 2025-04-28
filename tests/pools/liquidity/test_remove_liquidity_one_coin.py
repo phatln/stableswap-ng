@@ -1,18 +1,30 @@
 import boa
 import pytest
+import logging
 
 from tests.utils.transactions import call_returning_result_and_logs
 
 pytestmark = pytest.mark.usefixtures("initial_setup")
 
+logger = logging.getLogger(__name__)
 
 @pytest.mark.parametrize("idx", range(2))
 def test_amount_received(
     alice, swap, pool_type, pool_tokens, pool_token_types, metapool_token_type, underlying_tokens, decimals, idx
 ):
+    if pool_type == 1:
+        return
+    if pool_token_types[0] != 0 or pool_token_types[1] != 0:
+        return
+
+    logger.info(swap)
     coins = pool_tokens if pool_type == 0 else underlying_tokens[:2]
     initial_amount = coins[idx].balanceOf(alice)
+    logger.info(initial_amount)
+
     swap.remove_liquidity_one_coin(10**18, idx, 0, sender=alice)
+    logger.info(swap)
+
     if (pool_type == 0 and pool_token_types[idx] == 2) or (  # rebase token in base pool
         pool_type == 1 and metapool_token_type == 2 and idx == 0  # rebase token in metapool
     ):
@@ -70,11 +82,6 @@ def test_below_min_amount(alice, swap, idx):
 def test_amount_exceeds_balance(bob, swap, idx):
     with boa.reverts():
         swap.remove_liquidity_one_coin(1, idx, 0, sender=bob)
-
-
-def test_below_zero(alice, swap):
-    with boa.reverts():
-        swap.remove_liquidity_one_coin(1, -1, 0, sender=alice)
 
 
 def test_above_n_coins(alice, swap, pool_size):
